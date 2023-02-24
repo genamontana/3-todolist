@@ -48,7 +48,7 @@ export function Todolist(props: TodolistPropsType) {
     const onActiveClickHandler = () => {
         props.changeFilter('active')
     }
-    const onCompletedClickHandler = () => () => {
+    const onCompletedClickHandler = () => {
         props.changeFilter('completed')
     }
 
