@@ -1,3 +1,16 @@
+import React from 'react';
+
+const App = () => {
+    return (
+        <div>
+
+        </div>
+    );
+};
+
+export default App;
+
+/*
 import React, {useState} from 'react';
 import {v1} from 'uuid';
 import './App.css';
@@ -161,5 +174,6 @@ function App() {
         </div>
     );
 }
+*/
 
-export default App;
+
