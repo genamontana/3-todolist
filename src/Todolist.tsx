@@ -1,9 +1,10 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useCallback} from 'react';
 import {FilterValuesType, TaskType} from './AppWithRedux';
-import AddItemForm from './AddItemForm';
+import {AddItemForm} from './AddItemForm';
 import EditableSpan from './EditableSpan';
 import {Button, Checkbox, IconButton} from '@mui/material';
 import {Delete} from '@mui/icons-material';
+import {Task} from './Task';
 
 
 type TodolistPropsType = {
@@ -21,25 +22,40 @@ type TodolistPropsType = {
 }
 
 
-export function Todolist(props: TodolistPropsType) {
+export const Todolist = React.memo((props: TodolistPropsType) => {
+    console.log('Todolist called')
 
-    const addTask = (title: string) => {
-        props.addTask(title, props.id)
-    }
-    const onAllClickHandler = () => {
-        props.changeFilter('all', props.id)
-    }
-    const onActiveClickHandler = () => {
-        props.changeFilter('active', props.id)
-    }
-    const onCompletedClickHandler = () => {
-        props.changeFilter('completed', props.id)
-    }
+    const addTask = useCallback(
+        (title: string) => {
+            props.addTask(title, props.id)
+        }, [props.addTask, props.id])
+
+
+    const onAllClickHandler = useCallback(
+        () => props.changeFilter('all', props.id),
+        [props.changeFilter, props.id])
+    const onActiveClickHandler = useCallback(
+        () => props.changeFilter('active', props.id),
+        [props.changeFilter, props.id])
+    const onCompletedClickHandler = useCallback(
+        () => props.changeFilter('completed', props.id),
+        [props.changeFilter, props.id])
+
+
     const removeTodoList = () => {
         props.removeTodoList(props.id)
     }
     const onChangeTitleTodoListHandler = (newTitle: string) => {
         props.changeTodoListTitle(props.id, newTitle)
+    }
+
+    let tasksForTodolist = props.tasks
+
+    if (props.filter === 'active') {
+        tasksForTodolist = props.tasks.filter(t => !t.isDone)
+    }
+    if (props.filter === 'completed') {
+        tasksForTodolist = props.tasks.filter(t => t.isDone)
     }
 
     return (
@@ -55,31 +71,12 @@ export function Todolist(props: TodolistPropsType) {
             <ul>
 
                 {
-                    props.tasks.map((t) => {
-
-                        const onClickHandler = () => props.removeTask(t.id, props.id)
-                        const onChangeStatusHandler = (e: ChangeEvent<HTMLInputElement>) => {
-                            let newIsDoneValue = e.currentTarget.checked
-                            props.changeTaskStatus(t.id, newIsDoneValue, props.id)
-                        }
-                        const onChangeTitleHandler = (newTitle: string) => {
-                            props.changeTaskTitle(t.id, newTitle, props.id)
-                        }
-
-                        return (
-                            <li key={t.id} className={t.isDone ? 'is-done' : ''}>
-
-                                <Checkbox color="primary"
-                                          checked={t.isDone}
-                                          onChange={onChangeStatusHandler}/>
-                                <EditableSpan value={t.title}
-                                              onChange={onChangeTitleHandler}/>
-                                <IconButton onClick={onClickHandler}>
-                                    <Delete/>
-                                </IconButton>
-                            </li>
-                        )
-                    })
+                    props.tasks.map(t => <Task key={t.id}
+                                               removeTask={props.removeTask}
+                                               changeTaskStatus={props.changeTaskStatus}
+                                               changeTaskTitle={props.changeTaskTitle}
+                                               task={t}
+                                               todoListId={props.id}/>)
 
                 }
             </ul>
@@ -99,4 +96,5 @@ export function Todolist(props: TodolistPropsType) {
             </div>
         </div>
     )
-}
+})
+
